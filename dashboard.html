@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Poppins">
+    <title>Buggy Website</title> <!-- Fixed page title -->
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        #dashboard-navbar {
+            background-color: #007BFF;
+            color: #fff;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        #dashboard-navbar h3 {
+            margin: 0;
+            font-size: 24px;
+        }
+        #dashboard-navbar a {
+            color: #fff;
+            text-decoration: none;
+            font-size: 16px;
+        }
+        #dashboard-navbar a:hover {
+            text-decoration: underline;
+        }
+        #welcome-h1 {
+            text-align: center;
+            margin-top: 50px;
+            font-size: 28px;
+            color: #333;
+        }
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: #28a745;
+            color: #fff;
+            padding: 10px 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            display: none;
+            z-index: 1000;
+        }
+    </style>
+</head>
+<body>
+    <div id="dashboard-navbar">
+        <h3>Buggy Website</h3>
+        <a href="Buggy Website.html" id="sign-out">Sign out</a>
+    </div>
+    <h1 id="welcome-h1">Welcome {FullName}, best of luck for your interview</h1>
+
+    <!-- Notification for successful registration -->
+    <div id="registration-notification" class="notification">Registration Successful!</div>
+    <!-- Notification for login/logout -->
+    <div id="login-notification" class="notification"></div>
+
+    <script>
+        // Redirect user if they are signed out
+        const loggedin = localStorage.getItem("loggedin");
+        if (loggedin == 0 || !loggedin) {
+            window.location = "Buggy Website.html";
+        }
+
+        // Sign out functionality
+        const signOutButton = document.querySelector("#sign-out");
+        signOutButton.addEventListener("click", (event) => {
+            event.preventDefault();
+            localStorage.setItem("loggedin", 0);
+            localStorage.setItem("fullName", null);
+            showNotification("Logged out successfully!", "login-notification");
+            setTimeout(() => {
+                window.location = "Buggy Website.html";
+            }, 1500); // Redirect after 1.5 seconds
+        });
+
+        // Set full name in h1 functionality
+        const fullName = localStorage.getItem("fullName");
+        const h1 = document.querySelector("#welcome-h1");
+        h1.innerHTML = `Welcome ${fullName ? fullName : "N/A"}, best of luck for your interview`;
+
+        // Show registration success notification if redirected from signup
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.has("registration")) {
+            showNotification("Registration Successful!", "registration-notification");
+        }
+
+        // Function to show notifications
+        function showNotification(message, elementId) {
+            const notification = document.getElementById(elementId);
+            notification.textContent = message;
+            notification.style.display = "block";
+            setTimeout(() => {
+                notification.style.display = "none";
+            }, 3000); // Hide after 3 seconds
+        }
+
+        // Show login notification
+        showNotification("Logged in successfully!", "login-notification");
+    </script>
+</body>
+</html>

@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Poppins">
+    <title>Fixed Buggy Website</title>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        #wrapper {
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+            margin: 20px;
+        }
+        h3 {
+            margin-bottom: 20px;
+            font-size: 24px;
+            color: #333;
+            text-align: center;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+        }
+        input[type="text"],
+        input[type="email"],
+        input[type="tel"],
+        input[type="date"],
+        select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+            box-sizing: border-box; /* Ensures padding doesn't affect width */
+        }
+        input[type="text"]:focus,
+        input[type="email"]:focus,
+        input[type="tel"]:focus,
+        input[type="date"]:focus,
+        select:focus {
+            border-color: #007BFF;
+            outline: none;
+        }
+        .error-msg {
+            color: red;
+            font-size: 14px;
+            margin-top: 5px;
+            display: none;
+        }
+        #radio-wrapper {
+            margin-bottom: 15px;
+        }
+        #radio-wrapper div {
+            margin-bottom: 5px;
+        }
+        #submit-btn {
+            width: 100%;
+            padding: 10px;
+            background-color: #007BFF;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        #submit-btn:hover {
+            background-color: #0056b3;
+        }
+        #submit-btn:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #007BFF;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+            display: none;
+            margin: 0 auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 480px) {
+            #wrapper {
+                padding: 15px;
+                margin: 10px;
+            }
+            h3 {
+                font-size: 20px;
+            }
+            input[type="text"],
+            input[type="email"],
+            input[type="tel"],
+            input[type="date"],
+            select {
+                font-size: 14px;
+                padding: 8px;
+            }
+            #submit-btn {
+                font-size: 14px;
+                padding: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="wrapper">
+        <form action="" name="signup" id="form">
+            <h3>Sign Up</h3>
+            <div class="form-group">
+                <label for="first-name">First Name<span>*</span></label>
+                <input type="text" placeholder="Enter First Name" id="first-name" maxlength="50" required>
+                <div class="error-msg" id="first-name-error">First name cannot be empty or contain special characters/numbers.</div>
+            </div>
+            <div class="form-group">
+                <label for="last-name">Last Name<span>*</span></label>
+                <input type="text" placeholder="Enter Last Name" id="last-name" maxlength="50" required>
+                <div class="error-msg" id="last-name-error">Last name cannot be empty or contain special characters/numbers.</div>
+            </div>
+            <div class="form-group">
+                <label for="father-name">Father Name<span>*</span></label>
+                <input type="text" placeholder="Enter Father Name" id="father-name" maxlength="50" required>
+                <div class="error-msg" id="father-name-error">Father name cannot be empty or contain special characters/numbers.</div>
+            </div>
+            <div class="form-group">
+                <label for="email">Email<span>*</span></label>
+                <input type="email" placeholder="Enter Email" id="email" required>
+                <div class="error-msg" id="email-error">Please enter a valid email address.</div>
+            </div>
+            <div class="form-group">
+                <label for="phone">Phone Number<span>*</span></label>
+                <input type="tel" placeholder="Enter Phone Number" id="phone" required>
+                <div class="error-msg" id="phone-error">Please enter a valid phone number.</div>
+            </div>
+            <div id="radio-wrapper" class="form-group">
+                <div>Gender<span>*</span></div>
+                <input type="radio" name="gender" value="male" id="male" required>
+                <label for="male">Male</label>
+                <input type="radio" name="gender" value="female" id="female">
+                <label for="female">Female</label>
+                <input type="radio" name="gender" value="other" id="other">
+                <label for="other">Prefer not to say</label>
+                <div class="error-msg" id="gender-error">Please select a gender.</div>
+            </div>
+            <div class="form-group">
+                <label for="dob">Date of Birth<span>*</span></label>
+                <input type="date" id="dob" required>
+                <div class="error-msg" id="dob-error">Please enter a valid date of birth.</div>
+            </div>
+            <div class="form-group">
+                <label for="country">Country<span>*</span></label>
+                <select id="country" required>
+                    <option value="">Select Country</option>
+                    <option value="USA">United States</option>
+                    <option value="UK">United Kingdom</option>
+                    <option value="Canada">Canada</option>
+                    <!-- Add more countries as needed -->
+                </select>
+                <div class="error-msg" id="country-error">Please select a country.</div>
+            </div>
+            <div class="form-group">
+                <label for="city">City<span>*</span></label>
+                <select id="city" required>
+                    <option value="">Select City</option>
+                    <option value="New York">New York</option>
+                    <option value="London">London</option>
+                    <option value="Toronto">Toronto</option>
+                    <!-- Add more cities as needed -->
+                </select>
+                <div class="error-msg" id="city-error">Please select a city.</div>
+            </div>
+            <div class="form-group">
+                <button type="submit" id="submit-btn" disabled>Agree and Join</button>
+                <div class="loader" id="loader"></div>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        const form = document.getElementById("form");
+        const submitButton = document.getElementById("submit-btn");
+        const loader = document.getElementById("loader");
+        const firstNameInput = document.getElementById("first-name");
+        const lastNameInput = document.getElementById("last-name");
+        const fatherNameInput = document.getElementById("father-name");
+        const emailInput = document.getElementById("email");
+        const phoneInput = document.getElementById("phone");
+        const dobInput = document.getElementById("dob");
+        const countryInput = document.getElementById("country");
+        const cityInput = document.getElementById("city");
+        const genderInputs = document.querySelectorAll('input[name="gender"]');
+
+        // Enable/disable submit button based on form validity
+        form.addEventListener("input", () => {
+            submitButton.disabled = !form.checkValidity();
+        });
+
+        // Validate first name, last name, and father name
+        const validateName = (name) => /^[A-Za-z\s]+$/.test(name);
+
+        firstNameInput.addEventListener("input", () => {
+            const isValid = validateName(firstNameInput.value);
+            document.getElementById("first-name-error").style.display = isValid ? "none" : "block";
+        });
+
+        lastNameInput.addEventListener("input", () => {
+            const isValid = validateName(lastNameInput.value);
+            document.getElementById("last-name-error").style.display = isValid ? "none" : "block";
+        });
+
+        fatherNameInput.addEventListener("input", () => {
+            const isValid = validateName(fatherNameInput.value);
+            document.getElementById("father-name-error").style.display = isValid ? "none" : "block";
+        });
+
+        // Validate email
+        emailInput.addEventListener("input", () => {
+            const isValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailInput.value);
+            document.getElementById("email-error").style.display = isValid ? "none" : "block";
+        });
+
+        // Validate phone number
+        phoneInput.addEventListener("input", () => {
+            const isValid = /^\d{10,15}$/.test(phoneInput.value);
+            document.getElementById("phone-error").style.display = isValid ? "none" : "block";
+        });
+
+        // Validate date of birth
+        dobInput.addEventListener("input", () => {
+            const dob = new Date(dobInput.value);
+            const today = new Date();
+            const age = today.getFullYear() - dob.getFullYear();
+            const isValid = age >= 18 && age <= 100;
+            document.getElementById("dob-error").style.display = isValid ? "none" : "block";
+        });
+
+        // Form submission
+        form.addEventListener("submit", (event) => {
+            event.preventDefault();
+            submitButton.disabled = true;
+            loader.style.display = "block";
+
+            setTimeout(() => {
+                loader.style.display = "none";
+                window.location.href = "dashboard.html";
+            }, 2000);
+        });
+    </script>
+</body>
+</html>
