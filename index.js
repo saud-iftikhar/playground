@@ -1,404 +1,158 @@
-import React, { useState, useEffect, useContext } from 'react';
-import { Link, useParams } from 'react-router-dom';
-import Sidebar from '../../components/Sidebar';
-import Product from '../../components/product';
+import React from 'react';
+import { Link } from 'react-router-dom';
+import './style.css';
+import Box from '@mui/material/Box';
+import TextField from '@mui/material/TextField';
+import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
+import VisibilityOffOutlinedIcon from '@mui/icons-material/VisibilityOffOutlined';
 import { Button } from '@mui/material';
-import GridViewOutlinedIcon from '@mui/icons-material/GridViewOutlined';
-import FilterListOutlinedIcon from '@mui/icons-material/FilterListOutlined';
+import { useState } from 'react';
+import GoogleImg from '../../assets/images/google.png';
 
-import { MyContext } from '../../App';
+import { initializeApp } from "firebase/app";
+import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
+import { app } from '../../firebase';
 
-const Listing = (props) => {
-    const [isOpenDropDown, setisOpenDropDown] = useState(false);
-    const [isOpenDropDown2, setisOpenDropDown2] = useState(false);
-    const [showPerPage, setHhowPerPage] = useState(3);
+import Backdrop from '@mui/material/Backdrop';
+import CircularProgress from '@mui/material/CircularProgress';
 
-    const [data, setData] = useState([]);
-
-    const context = useContext(MyContext);
-
-    const [currentId, setCurrentId] = useState()
-
-    let { id } = useParams();
-
-    var itemsData = [];
+const auth = getAuth(app);
 
 
-    useEffect(() => {
+const SignUp = () => {
 
-        props.data.length !== 0 &&
-            props.data.map((item, index) => {
+    const [showPassword, setShowPassword] = useState(false);
+    const [showPassword1, setShowPassword1] = useState(false);
 
-                //page == single cat
-                if (props.single === true) {
-
-                    if (item.cat_name.toLowerCase() == id.toLowerCase()) {
-
-                        item.items.length !== 0 &&
-                            item.items.map((item_) => {
-                                item_.products.map((item__, index__) => {
-                                    itemsData.push({ ...item__, parentCatName: item.cat_name, subCatName: item_.cat_name })
-                                })
-
-                            })
+    const [showLoader, setShowLoader] = useState(false);
 
 
-                    }
-                }
-                //page == double cat
-                else {
-                    item.items.length !== 0 &&
-                        item.items.map((item_, index_) => {
-                            // console.log(item_.cat_name.replace(/[^A-Za-z]/g,"-").toLowerCase())
-                            if (item_.cat_name.split(' ').join('-').toLowerCase() == id.split(' ').join('-').toLowerCase()) {
-                                item_.products.map((item__, index__) => {
+    const [formFields, setFormFields] = useState({
+        email: '',
+        password: '',
+        conformPassword: ''
+    })
 
-                                    itemsData.push({ ...item__, parentCatName: item.cat_name, subCatName: item_.cat_name })
+    const signUp = () => {
+        if(formFields.email!=="" && formFields.password!=="" && formFields.conformPassword!==""){
+            setShowLoader(true);
+            createUserWithEmailAndPassword(auth, formFields.email, formFields.password)
+                .then((userCredential) => {
+                    // Signed up 
+                    const user = userCredential.user;
+                    setShowLoader(false);
+                    setFormFields({
+                        email:'',
+                        password:'',
+                        conformPassword:''
+                    })
+                    // ...
+                })
+                .catch((error) => {
+                    const errorCode = error.code;
+                    const errorMessage = error.message;
+                    alert(error.message);
+                    setShowLoader(false);
+                    // ..
+                });
+        }
 
-                                })
-
-                            }
-                        })
-                }
-
-            })
-
-
-
-
-        const list2 = itemsData.filter((item, index) => itemsData.indexOf(item) === index);
-
-        setData(list2);
-
-        window.scrollTo(0,0);
-
-    }, [id])
-
-
-
-
-
-
-    const filterByBrand = (keyword) => {
-
-        props.data.length !== 0 &&
-            props.data.map((item, index) => {
-
-                //page == single cat
-                if (props.single === true) {
-
-                    item.items.length !== 0 &&
-                        item.items.map((item_) => {
-                            item_.products.map((item__, index__) => {
-                                if (item__.brand.toLowerCase() === keyword.toLowerCase()) {
-                                    //console.log(item__)
-                                    itemsData.push({ ...item__, parentCatName: item.cat_name, subCatName: item_.cat_name })
-                                }
-
-
-                            })
-
-                        })
-
-
-                }
-                //page == double cat
-                else {
-                    item.items.length !== 0 &&
-                        item.items.map((item_, index_) => {
-                            // console.log(item_.cat_name.replace(/[^A-Za-z]/g,"-").toLowerCase())
-                            if (item_.cat_name.split(' ').join('-').toLowerCase() == id.split(' ').join('-').toLowerCase()) {
-                                item_.products.map((item__, index__) => {
-                                    if (item__.brand.toLowerCase() === keyword.toLowerCase()) {
-                                        itemsData.push({ ...item__, parentCatName: item.cat_name, subCatName: item_.cat_name })
-                                    }
-
-                                })
-
-                            }
-                        })
-                }
-
-            })
-
-
-
-        const list2 = itemsData.filter((item, index) => itemsData.indexOf(item) === index);
-        //console.log(itemsData)
-
-
-        setData(list2);
-
-        window.scrollTo(0, 0)
-
+        else{
+            alert("Please fill all the details");
+        }
+       
     }
 
 
+    const onChangeField = (e) => {
+        const name = e.target.name;
+        const value = e.target.value;
 
-
-    const filterByPrice = (minValue, maxValue) => {
-
-        props.data.length !== 0 &&
-            props.data.map((item, index) => {
-
-                //page == single cat
-                if (props.single === true) {
-                    if (id === item.cat_name.toLowerCase()) {
-                        item.items.length !== 0 &&
-                            item.items.map((item_) => {
-                                item_.products.length !== 0 &&
-                                    item_.products.map((product, prodIndex) => {
-                                        let price = parseInt(product.price.toString().replace(/,/g, ""))
-                                        if (minValue <= price && maxValue >= price) {
-                                            itemsData.push({ ...product, parentCatName: item.cat_name, subCatName: item_.cat_name })
-                                        }
-
-                                    })
-                            })
-                    }
-                }
-
-                else {
-                    item.items.length !== 0 &&
-                        item.items.map((item_, index_) => {
-                            if (item_.cat_name.split(' ').join('-').toLowerCase() == id.split(' ').join('-').toLowerCase()) {
-                                item_.products.map((product) => {
-                                    let price = parseInt(product.price.toString().replace(/,/g, ""))
-                                    if (minValue <= price && maxValue >= price) {
-                                        itemsData.push({ ...product, parentCatName: item.cat_name, subCatName: item_.cat_name })
-                                    }
-                                })
-
-                            }
-                        })
-                }
-
-            })
-
-        const list2 = itemsData.filter((item, index) => itemsData.indexOf(item) === index);
-        setData(list2);
-    }
-
-
-
-
-
-    const filterByRating = (keyword) => {
-
-        props.data.length !== 0 &&
-            props.data.map((item, index) => {
-
-                //page == single cat
-                if (props.single === true) {
-
-                    if (item.cat_name.toLowerCase() == id.toLowerCase()) {
-
-                        item.items.length !== 0 &&
-                            item.items.map((item_) => {
-                                item_.products.map((item__, index__) => {
-                                    itemsData.push({ ...item__, parentCatName: item.cat_name, subCatName: item_.cat_name })
-                                })
-
-                            })
-
-
-                    }
-                }
-                //page == double cat
-                else {
-                    item.items.length !== 0 &&
-                        item.items.map((item_, index_) => {
-                            // console.log(item_.cat_name.replace(/[^A-Za-z]/g,"-").toLowerCase())
-                            if (item_.cat_name.split(' ').join('-').toLowerCase() == id.split(' ').join('-').toLowerCase()) {
-                                item_.products.map((item__, index__) => {
-
-                                    itemsData.push({ ...item__, parentCatName: item.cat_name, subCatName: item_.cat_name })
-
-                                })
-
-                            }
-                        })
-                }
-
-            })
-
-
-
-
-        const list2 = itemsData.filter((item, index) => itemsData.indexOf(item) === index);
-
-        setData(list2);
-
-        data?.map((item)=>{
-            if(item.rating===keyword){
-                itemsData.push({ ...item, parentCatName: item.cat_name, subCatName: item.cat_name })
-            }
-        })
-
-
-        const list3 = itemsData.filter((item, index) => itemsData.indexOf(item) === index);
-      
-        setData(list2);
-
-
-        window.scrollTo(0, 0)
+        setFormFields(() => ({
+            ...formFields,
+            [name]: value,
+        }))
 
     }
-
 
 
     return (
         <>
-            {
-                context.windowWidth < 992 &&
-                <>
-                    {
-                        context.isopenNavigation===false &&
-                        <Button className='btn-g btn-lg w-100 filterBtn' onClick={() => context.openFilters()}>Filters</Button>
-                    }
-                </>
-              
-            }
-
-            <section className='listingPage'>
-
-                <div className='container-fluid'>
-
-                    {
-                        <div className='breadcrumb flex-column'>
-                            <h1 className="text-capitalize">{id.split('-').join(' ')}</h1>
-                            <ul className='list list-inline mb-0'>
-                                <li className='list-inline-item'>
-                                    <Link to={''}>Home </Link>
-                                </li>
-                                <li className='list-inline-item'>
-                                    <Link to={`/cat/${sessionStorage.getItem('cat')}`} className='text-capitalize'>{sessionStorage.getItem('cat')} </Link>
-                                </li>
-                                {
-                                    props.single === false &&
-                                    <li className='list-inline-item'>
-                                        <Link to={''} class="text-capitalize">{id.split('-').join(' ')}</Link>
-                                    </li>
-                                }
-                            </ul>
-                        </div>
-
-                    }
-
-
-
-                    <div className='listingData'>
-                        <div className='row'>
-                            <div className={`col-md-3 sidebarWrapper ${context.isOpenFilters===true && 'click'}`}>
-
-                                {
-                                    data.length !== 0 && <Sidebar data={props.data} currentCatData={data} filterByBrand={filterByBrand} filterByPrice={filterByPrice} filterByRating={filterByRating} />
-                                }
-
-                            </div>
-
-
-                            <div className='col-md-9 rightContent homeProducts pt-0'>
-
-
-                                <div className='topStrip d-flex align-items-center'>
-                                    <p className='mb-0'>We found <span className='text-success'>{data.length}</span> items for you!</p>
-                                    <div className='ml-auto d-flex align-items-center'>
-                                        <div className='tab_ position-relative'>
-                                            <Button className='btn_' onClick={() => setisOpenDropDown(!isOpenDropDown)}><GridViewOutlinedIcon /> Show: {showPerPage * 5}</Button>
-                                            {
-                                                isOpenDropDown !== false &&
-                                                <ul className='dropdownMenu'>
-                                                    <li>
-                                                        <Button className='align-items-center'
-                                                            onClick={() => {
-                                                                setisOpenDropDown(false)
-                                                                setHhowPerPage(1);
-                                                            }}
-                                                        >
-                                                            5
-                                                        </Button>
-                                                    </li>
-                                                    <li>
-                                                        <Button className='align-items-center'
-                                                            onClick={() => {
-                                                                setisOpenDropDown(false)
-                                                                setHhowPerPage(2);
-                                                            }}
-                                                        >
-                                                            10
-                                                        </Button>
-                                                    </li>
-
-                                                    <li>
-                                                        <Button className='align-items-center'
-                                                            onClick={() => {
-                                                                setisOpenDropDown(false)
-                                                                setHhowPerPage(3);
-                                                            }}
-                                                        >
-                                                            15
-                                                        </Button>
-                                                    </li>
-
-                                                    <li>
-                                                        <Button className='align-items-center'
-                                                            onClick={() => {
-                                                                setisOpenDropDown(false)
-                                                                setHhowPerPage(4);
-                                                            }}
-                                                        >
-                                                            20
-                                                        </Button>
-                                                    </li>
-                                                </ul>
-                                            }
-                                        </div>
-                                        <div className='tab_ ml-3 position-relative'>
-                                            <Button className='btn_' onClick={() => setisOpenDropDown2(!isOpenDropDown2)}><FilterListOutlinedIcon /> Sort by: Featured </Button>
-                                            {
-                                                isOpenDropDown2 !== false &&
-                                                <ul className='dropdownMenu'>
-                                                    <li><Button className='align-items-center' onClick={() => setisOpenDropDown2(false)}>Featured</Button></li>
-                                                    <li><Button className='align-items-center' onClick={() => setisOpenDropDown2(false)}> Price: Low to High</Button></li>
-                                                    <li><Button className='align-items-center' onClick={() => setisOpenDropDown2(false)}> Price: High to Low</Button></li>
-                                                    <li><Button className='align-items-center' onClick={() => setisOpenDropDown2(false)}> Release Date</Button></li>
-                                                    <li><Button className='align-items-center' onClick={() => setisOpenDropDown2(false)}> Avg. Rating</Button></li>
-                                                </ul>
-                                            }
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div className='productRow pl-4 pr-3'>
-
-                                    {
-                                        data.length !== 0 &&
-                                        data.map((item, index) => {
-                                            return (
-                                                <div className='item' key={index}>
-                                                    <Product tag={item.type} item={item} />
-                                                </div>
-                                            )
-                                        })
-                                    }
-
-
-                                </div>
-
-
-                            </div>
-
-                        </div>
+            <section className='signIn mb-5'>
+                <div class="breadcrumbWrapper res-hide">
+                    <div class="container-fluid">
+                        <ul class="breadcrumb breadcrumb2 mb-0">
+                            <li><Link to="/">Home</Link>  </li>
+                            <li>SignUp</li>
+                        </ul>
                     </div>
-
-
                 </div>
+
+
+
+                <div className='loginWrapper'>
+                    <div className='card shadow'>
+
+                        <Backdrop
+                            sx={{ color: '#000', zIndex: (theme) => theme.zIndex.drawer + 1 }}
+                            open={showLoader}
+                            className="formLoader"
+                        >
+                            <CircularProgress color="inherit" />
+                        </Backdrop>
+
+                        <h3>SignUp</h3>
+                        <form className='mt-4'>
+                            <div className='form-group mb-4 w-100'>
+                                <TextField id="email" type="email" name='email' label="Email" className='w-100' onChange={onChangeField}  value={formFields.email}/>
+                            </div>
+                            <div className='form-group mb-4 w-100'>
+                                <div className='position-relative'>
+                                    <TextField id="password" type={showPassword === false ? 'password' : 'text'} name='password' label="Password" className='w-100' onChange={onChangeField} 
+                                     value={formFields.password}/>
+                                    <Button className='icon' onClick={() => setShowPassword(!showPassword)}>
+                                        {
+                                            showPassword === false ? <VisibilityOffOutlinedIcon /> : <VisibilityOutlinedIcon />
+                                        }
+
+                                    </Button>
+                                </div>
+
+                            </div>
+
+                            <div className='form-group mb-4 w-100'>
+                                <div className='position-relative'>
+                                    <TextField id="conformPassword" type={showPassword1 === false ? 'password' : 'text'} name='conformPassword' label="Confirm Password" className='w-100' onChange={onChangeField}  value={formFields.conformPassword}/>
+                                    <Button className='icon' onClick={() => setShowPassword1(!showPassword1)}>
+                                        {
+                                            showPassword1 === false ? <VisibilityOffOutlinedIcon /> : <VisibilityOutlinedIcon />
+                                        }
+
+                                    </Button>
+                                </div>
+
+                            </div>
+
+
+                            <div className='form-group mt-5 mb-4 w-100'>
+                                <Button className='btn btn-g btn-lg w-100' onClick={signUp}>Sign Up</Button>
+                            </div>
+
+                            <p className='text-center'>Already have an account
+                                <b> <Link to="/signIn">Sign In</Link>
+                                </b>
+                            </p>
+
+
+
+                        </form>
+                    </div>
+                </div>
+
+
             </section>
-
         </>
-
     )
 }
 
-export default Listing;
+export default SignUp;
