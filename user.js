@@ -1,81 +1,51 @@
-const router = require("express").Router();
-const {regValidation, loginValidation} = require("./validation")
-const User = require("../models/User");
-const bycrypt = require("bcrypt");
-const jwt = require("jsonwebtoken");
-const verifyToken = require("./verifyToken")
+const userRoutes = require("express").Router();
+const Joi = require('joi');
+const {userSchema} = require('./validation_schema/user_schema')
+const bcrypt = require('bcryptjs')
 
-
-router.get("/register", verifyToken, (req, res) => {
-    res.send("We are at /api/register/ GET")
-})
-
-router.post("/register", async (req, res) => {
-    const {name, email, password, address} = req.body;
-    const {error} = regValidation(req.body);
-    
-    if(error) return res.send(error.details[0].message); // Guard Clause
-
-    const salt = await bycrypt.genSalt(10);
-    const hash = await bycrypt.hash(password, salt);
-
-    const findUser = await User.findOne({email: req.body.email})
-    
-    if(findUser) return res.status(400).send("Email is already registered!!!")
-
-    const user = new User({
-        name,
-        email,
-        password: hash,
-        address
+userRoutes.get("/", (req, res) => {
+    res.send({
+        message: "We are at user's home"
     })
+})
 
-    try {
-        const savedUser = await user.save();
-        res.send(savedUser);
-    }
-    catch(err) {
-        res.status(400).send(err);
-    }
+userRoutes.post("/", async (req, res) => {
+
+    const {error} = userSchema(req.body);
+    
+    if(error)  res.send(error.details[0].message);
+
+    const salt = await bcrypt.genSalt(10)
+    const hash = await bcrypt.hash(req.body.password, salt)
+    const valid = await bcrypt.compare(req.body.password, hash)
+
+    res.status(200).send(valid);
+    // Body
+    // console.log(req.body.name)
+    // console.log(req.body.id)
+    // console.log(req.body.password)
+
+    // res.send({
+    //     name: req.body.name
+    // })
+
+    // res.header("token", req.body.password).send()
+
+    // Headers
+    // console.log(req.headers.secret_key)
+
+    // URL
+    // console.log(req.query.id)
+})
+
+userRoutes.delete("/", (req, res) => {
 
 })
 
-router.patch("/register", (req, res) => {
-
+userRoutes.get("/cart", (req, res) => {
+    res.send({
+        message: "We are at user's cart"
+    })
 })
 
-router.delete("/register", (req, res) => {
-
-})
-
-router.get("/login", (req, res) => {
-
-})
-router.post("/login", async (req, res) => {
-    const {email, password} = req.body;
-
-    const user = await User.findOne({email: email})
-    if(!user) return res.status(400).send("Email not found!");
-
-    const compare = await bycrypt.compare(password, user.password);
-    if(!compare) return res.status(400).send("Password is incorrect!");
-
-    const token = jwt.sign({email: user.email}, process.env.TOKEN_SECRET)
-
-    res.header("auth-token", token).send()
-
-    // res.send("Logged in Successfully!")
-
-})
-router.patch("/login", (req, res) => {
-
-})
-router.delete("/login", (req, res) => {
-
-})
-
-router.get("/test", (req, res) => {
-    res.send("Testing...")
-})
-
-module.exports = router;
+module.exports = userRoutes;
